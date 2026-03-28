@@ -1,0 +1,37 @@
+[project]
+name = "mentorai"
+version = "0.1.0"
+description = "AI Exam Preparation System with TUI, GUI, and Streamlit"
+authors = [
+    { name = "Himanshu Arora" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "transformers",
+    "peft",
+    "rich",
+    "prompt_toolkit",
+    "PyQt6",
+    "streamlit",
+    "datasets",
+    "trl"
+]
+
+# 🔥 OPTIONAL DEPENDENCIES (RECOMMENDED)
+[project.optional-dependencies]
+gpu = ["torch"]
+fast = ["unsloth"]
+
+[project.scripts]
+mentorai = "major_project.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# 🔥 VERY IMPORTANT (package discovery)
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["major_project*"]
