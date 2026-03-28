@@ -12,7 +12,7 @@ Install directly from PyPI:
 pip install mentorai
 ```
 
-PyPI: https://pypi.org/project/mentorai/0.1.0/
+PyPI: https://pypi.org/project/mentorai/0.1.2/
 
 ---
 

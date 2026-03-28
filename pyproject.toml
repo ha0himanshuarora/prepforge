@@ -1,6 +1,6 @@
 [project]
 name = "mentorai"
-version = "0.1.0"
+version = "0.1.2"
 description = "AI Exam Preparation System with TUI, GUI, and Streamlit"
 authors = [
     { name = "Himanshu Arora" }
