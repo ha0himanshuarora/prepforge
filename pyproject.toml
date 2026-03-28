@@ -1,26 +1,31 @@
 [project]
 name = "mentorai"
-version = "0.1.2"
+version = "0.1.3"
 description = "AI Exam Preparation System with TUI, GUI, and Streamlit"
 authors = [
     { name = "Himanshu Arora" }
 ]
-readme = "README.md"
+readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
+license = { file = "LICENSE" }
 
 dependencies = [
     "transformers",
     "peft",
     "rich",
-    "prompt_toolkit",
-    "PyQt6",
-    "streamlit",
-    "datasets",
-    "trl"
+    "prompt_toolkit"
 ]
 
-# 🔥 OPTIONAL DEPENDENCIES (RECOMMENDED)
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
 [project.optional-dependencies]
+gui = ["PyQt6"]
+web = ["streamlit"]
+train = ["datasets", "trl"]
 gpu = ["torch"]
 fast = ["unsloth"]
 
@@ -31,7 +36,6 @@ mentorai = "major_project.cli:main"
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
-# 🔥 VERY IMPORTANT (package discovery)
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["major_project*"]
