@@ -3,7 +3,7 @@ from major_project.core.config_store import load_user_config
 
 DEFAULT_MODEL = "unsloth/llama-3.2-3b-instruct-unsloth-bnb-4bit"
 DEFAULT_LORA = None
-DEFAULT_APP_NAME = "MentorAI"
+DEFAULT_APP_NAME = "PrepForge"
 MAX_HISTORY = 6
 
 

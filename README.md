@@ -1,6 +1,6 @@
-# 🎓 MentorAI
+# 🎓 PrepForge
 
-MentorAI is an AI-powered exam preparation system with multiple interfaces and support for base LLMs and LoRA adapters.
+PrepForge is an AI-powered exam preparation system with multiple interfaces and support for base LLMs and LoRA adapters.
 
 ---
 
@@ -9,10 +9,10 @@ MentorAI is an AI-powered exam preparation system with multiple interfaces and s
 Install directly from PyPI:
 
 ```bash
-pip install mentorai
+pip install prepforge
 ```
 
-PyPI: https://pypi.org/project/mentorai/0.1.3/
+PyPI: https://pypi.org/project/prepforge/0.1.0/
 
 ---
 
@@ -31,17 +31,17 @@ PyPI: https://pypi.org/project/mentorai/0.1.3/
 
 ### Terminal Interface (TUI)
 ```bash
-mentorai run tui
+prepforge run tui
 ```
 
 ### Desktop GUI
 ```bash
-mentorai run gui
+prepforge run gui
 ```
 
 ### Web Interface
 ```bash
-mentorai run streamlit
+prepforge run streamlit
 ```
 
 ---
@@ -51,13 +51,13 @@ mentorai run streamlit
 Set default model:
 
 ```bash
-mentorai config --model <model_name_or_path>
+prepforge config --model <model_name_or_path>
 ```
 
 Set LoRA adapter:
 
 ```bash
-mentorai config --lora <adapter_path>
+prepforge config --lora <adapter_path>
 ```
 
 ---
@@ -65,7 +65,7 @@ mentorai config --lora <adapter_path>
 ## 🏋️ Training
 
 ```bash
-mentorai train \
+prepforge train \
   --dataset dataset.jsonl \
   --epochs 3 \
   --output trained_model

@@ -6,8 +6,8 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="mentorai",
-        description="MentorAI - Multi-interface AI assistant with training support",
+        prog="prepforge",
+        description="prepforge - Multi-interface AI assistant with training support",
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -20,7 +20,7 @@ def main():
         "run",
         help="Run the application (tui | gui | streamlit)",
         description=(
-            "Run MentorAI in one of the following modes:\n\n"
+            "Run prepforce in one of the following modes:\n\n"
             "  tui        Terminal interface\n"
             "  gui        Desktop application\n"
             "  streamlit  Web interface\n"
@@ -46,9 +46,9 @@ def main():
             "  --limit N     Train on first N samples\n"
             "  --subset F    Train on fraction (0.1 = 10%%)\n\n"
             "Examples:\n"
-            "  mentorai train --dataset data.jsonl\n"
-            "  mentorai train --dataset data.jsonl --limit 500\n"
-            "  mentorai train --dataset data.jsonl --subset 0.05\n"
+            "  prepforce train --dataset data.jsonl\n"
+            "  prepforce train --dataset data.jsonl --limit 500\n"
+            "  prepforce train --dataset data.jsonl --subset 0.05\n"
         ),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -103,8 +103,8 @@ def main():
         description=(
             "Configure default model and LoRA adapter\n\n"
             "Examples:\n"
-            "  mentorai config --model meta-llama/Llama-3-8B\n"
-            "  mentorai config --lora ~/adapter\n"
+            "  prepforce config --model meta-llama/Llama-3-8B\n"
+            "  prepforce config --lora ~/adapter\n"
         ),
         formatter_class=argparse.RawTextHelpFormatter,
     )

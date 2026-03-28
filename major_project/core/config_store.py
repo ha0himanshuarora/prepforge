@@ -1,7 +1,7 @@
 import os
 import json
 
-CONFIG_DIR = os.path.expanduser("~/.mentorai")
+CONFIG_DIR = os.path.expanduser("~/.prepforce")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
 
