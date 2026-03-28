@@ -1,78 +1,63 @@
 # 🎓 MentorAI
 
-An AI-powered exam preparation system with multiple interfaces and LoRA support.
+MentorAI is an AI-powered exam preparation system with multiple interfaces and support for base LLMs and LoRA adapters.
+
+---
+
+## 📦 Installation
+
+Install directly from PyPI:
+
+```bash
+pip install mentorai
+```
+
+PyPI: https://pypi.org/project/mentorai/0.1.0/
 
 ---
 
 ## ✨ Features
 
-- 🖥 Terminal UI (TUI) using Rich  
-- 🪟 Desktop GUI using PyQt6  
-- 🌐 Web interface using Streamlit  
-- 🧠 Supports base LLM + LoRA adapters  
-- 🏋️ Built-in training pipeline (QLoRA / Unsloth)  
-- ⚡ Offline inference support  
-
----
-
-## 📂 Project Structure
-
-```
-major_project/
-├── core/
-│   ├── model.py        # model + LoRA loader
-│   ├── train.py        # training pipeline
-│   └── utils.py
-├── tui_app.py          # terminal interface
-├── gui_app.py          # PyQt GUI
-├── streamlit_app.py    # web app
-├── cli.py              # CLI entry point
-├── config.py
-```
-
----
-
-## ⚙️ Installation
-
-```bash
-git clone <your-repo>
-cd major_project_v2
-pip install -e .
-```
+- 🖥 Terminal UI (TUI)
+- 🪟 Desktop GUI (PyQt6)
+- 🌐 Web interface (Streamlit)
+- 🧠 Supports base models and LoRA adapters
+- 🏋️ Built-in training pipeline (QLoRA / Unsloth)
+- ⚡ Offline inference support
 
 ---
 
 ## 🚀 Usage
 
-### 🖥 TUI
+### Terminal Interface (TUI)
 ```bash
 mentorai run tui
 ```
 
-### 🪟 GUI
+### Desktop GUI
 ```bash
 mentorai run gui
 ```
 
-### 🌐 Web UI
+### Web Interface
 ```bash
 mentorai run streamlit
 ```
 
 ---
 
-## 🧠 Using Custom Model
+## ⚙️ Configuration
+
+Set default model:
 
 ```bash
-mentorai run tui --model <model_path>
+mentorai config --model <model_name_or_path>
 ```
 
----
-
-## 🔥 Using LoRA Adapter
+Set LoRA adapter:
 
 ```bash
-mentorai run tui --model <base_model> --lora <adapter_path>
+mentorai config --lora <adapter_path>
 ```
 
 ---
@@ -88,7 +73,7 @@ mentorai train \
 
 ---
 
-## 📊 Example Dataset Format
+## 📊 Dataset Format
 
 ```json
 {
@@ -100,11 +85,28 @@ mentorai train \
 
 ---
 
+## 📂 Project Structure
+
+```
+major_project/
+├── core/
+│   ├── model.py
+│   ├── train.py
+│   └── utils.py
+├── tui_app.py
+├── gui_app.py
+├── streamlit_app.py
+├── cli.py
+├── config.py
+```
+
+---
+
 ## ⚠️ Notes
 
-- Models are NOT bundled  
+- Models are not bundled with the package  
 - Users must download base models separately  
-- Works best with GPU (CUDA)  
+- GPU (CUDA) is recommended for best performance  
 
 ---
 
