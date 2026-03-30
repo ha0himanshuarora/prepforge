@@ -21,7 +21,7 @@ from major_project.core.utils import (
     chat_history,
     last_mcq_block,
 )
-from major_project.config import DEFAULT_APP_NAME, DEFAULT_MODEL, DEFAULT_LORA
+from major_project.config import DEFAULT_APP_NAME, DEFAULT_LORA
 
 # -----------------------------
 # CONFIG
@@ -30,7 +30,7 @@ APP_NAME = DEFAULT_APP_NAME
 console = Console()
 
 # -----------------------------
-# LLAMA TEMPLATE
+# TEMPLATE (HF ONLY)
 # -----------------------------
 LLAMA3_TEMPLATE = (
     "{% for message in messages %}"
@@ -45,6 +45,14 @@ LLAMA3_TEMPLATE = (
     "{% endif %}"
 )
 
+# -----------------------------
+# ENV
+# -----------------------------
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+warnings.filterwarnings("ignore")
+logging.set_verbosity_error()
+
 
 # -----------------------------
 # BANNER
@@ -57,14 +65,6 @@ def print_banner():
     except Exception:
         console.print(f"[bold cyan]\n=== {APP_NAME.upper()} ===\n[/bold cyan]")
 
-
-# -----------------------------
-# ENV
-# -----------------------------
-os.environ["TRANSFORMERS_VERBOSITY"] = "error"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-warnings.filterwarnings("ignore")
-logging.set_verbosity_error()
 
 print_banner()
 
@@ -123,7 +123,7 @@ def get_lora_path():
 
 
 # -----------------------------
-# MODEL
+# LOAD MODEL
 # -----------------------------
 console.print(f"[bold green]Loading {APP_NAME} model...[/bold green]")
 
@@ -135,13 +135,20 @@ if model_mode == "lora":
     if user_lora:
         lora_path = user_lora
 
-model, tokenizer = load_model(base_model=DEFAULT_MODEL, lora_path=lora_path)
+model, tokenizer = load_model(base_model=None, lora_path=lora_path)
 
-tokenizer.padding_side = "left"
-if tokenizer.pad_token is None:
-    tokenizer.pad_token = tokenizer.eos_token
+# 🔥 Detect GGUF
+is_gguf = isinstance(model, dict) and model.get("type") == "gguf"
 
-tokenizer.chat_template = LLAMA3_TEMPLATE
+# -----------------------------
+# HF ONLY SETUP
+# -----------------------------
+if not is_gguf:
+    tokenizer.padding_side = "left"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    tokenizer.chat_template = LLAMA3_TEMPLATE
 
 console.print("Model loaded!\n")
 
@@ -223,13 +230,37 @@ def main():
 
         console.print("\nThinking...\n")
 
-        streamer = generate_stream(model, tokenizer, prompt, length)
-        response = ""
+        # -----------------------------
+        # GGUF STREAMING (NEW 🔥)
+        # -----------------------------
+        if is_gguf:
+            llm = model["llm"]
+            response = ""
 
-        with Live(Panel("", title="Response"), refresh_per_second=10) as live:
-            for token in streamer:
-                response += token
-                live.update(Panel(response, title="Response"))
+            try:
+                stream = llm(prompt, max_tokens=length, stream=True)
+
+                with Live(Panel("", title="Response"), refresh_per_second=10) as live:
+                    for chunk in stream:
+                        token = chunk["choices"][0]["text"]
+                        response += token
+                        live.update(Panel(response, title="Response"))
+
+            except Exception as e:
+                console.print(f"[red]GGUF Error: {e}[/red]")
+                continue
+
+        # -----------------------------
+        # HF STREAMING (UNCHANGED)
+        # -----------------------------
+        else:
+            streamer = generate_stream(model, tokenizer, prompt, length)
+            response = ""
+
+            with Live(Panel("", title="Response"), refresh_per_second=10) as live:
+                for token in streamer:
+                    response += token
+                    live.update(Panel(response, title="Response"))
 
         chat_history.append({"role": "assistant", "content": response})
 

@@ -43,6 +43,10 @@ class AIApp(QWidget):
         self.model_name = DEFAULT_MODEL
         self.lora_path = DEFAULT_LORA
 
+        self.model = None
+        self.tokenizer = None
+        self.is_gguf = False  # 🔥 NEW
+
         layout = QVBoxLayout()
 
         # TITLE
@@ -119,9 +123,6 @@ class AIApp(QWidget):
 
         self.setLayout(layout)
 
-        self.model = None
-        self.tokenizer = None
-
     # -----------------------------
     # MODEL
     # -----------------------------
@@ -140,11 +141,16 @@ class AIApp(QWidget):
         self.output.append("🔄 Loading model...")
         QApplication.processEvents()
 
+        # 🔥 CHANGED: use config-based model
         self.model, self.tokenizer = load_model(
-            self.model_name, self.lora_path if use_lora else None
+            None, self.lora_path if use_lora else None
         )
 
-        self.output.append("✅ Model loaded")
+        # 🔥 NEW: detect GGUF
+        self.is_gguf = isinstance(self.model, dict) and self.model.get("type") == "gguf"
+
+        backend = "GGUF (llama.cpp)" if self.is_gguf else "HuggingFace"
+        self.output.append(f"✅ Model loaded [{backend}]")
 
     # -----------------------------
     # UTIL
@@ -180,15 +186,10 @@ class AIApp(QWidget):
         if not user_text:
             return
 
-        # ✅ FIX: proper spacing
         self.output.append(f"🧑 {user_text}\n")
 
         prompt = build_prompt(
             self.mode.currentText(), user_text, self.count_input.value()
-        )
-
-        streamer = generate_stream(
-            self.model, self.tokenizer, prompt, self.length_input.value()
         )
 
         response = ""
@@ -198,11 +199,44 @@ class AIApp(QWidget):
         cursor.insertText("🤖 ")
         self.output.setTextCursor(cursor)
 
-        for token in streamer:
-            response += token
-            cursor.insertText(token)
-            self.output.setTextCursor(cursor)
-            QApplication.processEvents()
+        # =========================================================
+        # 🔥 GGUF STREAMING
+        # =========================================================
+        if self.is_gguf:
+            try:
+                llm = self.model["llm"]
+
+                stream = llm(
+                    prompt,
+                    max_tokens=self.length_input.value(),
+                    stream=True,
+                    temperature=0.3,
+                )
+
+                for chunk in stream:
+                    token = chunk["choices"][0]["text"]
+                    response += token
+                    cursor.insertText(token)
+                    self.output.setTextCursor(cursor)
+                    QApplication.processEvents()
+
+            except Exception as e:
+                self.output.append(f"\n❌ GGUF Error: {e}\n")
+                return
+
+        # =========================================================
+        # 🔥 HF STREAMING (UNCHANGED)
+        # =========================================================
+        else:
+            streamer = generate_stream(
+                self.model, self.tokenizer, prompt, self.length_input.value()
+            )
+
+            for token in streamer:
+                response += token
+                cursor.insertText(token)
+                self.output.setTextCursor(cursor)
+                QApplication.processEvents()
 
         self.output.append("\n")
 

@@ -1,6 +1,6 @@
 [project]
 name = "prepforge"
-version = "0.1.0"
+version = "0.2.0"
 description = "AI Exam Preparation System with TUI, GUI, and Streamlit"
 authors = [
     { name = "Himanshu Arora" }
@@ -29,6 +29,7 @@ web = ["streamlit"]
 train = ["datasets", "trl"]
 gpu = ["torch"]
 fast = ["unsloth"]
+gguf = ["llama-cpp-python"]
 
 [project.scripts]
 prepforge = "major_project.cli:main"

@@ -3,22 +3,12 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
-# ✅ Use shared config
 from major_project.config import get_model, get_lora
 
 
 def _check_cuda():
-    """
-    Ensure NVIDIA GPU is available.
-    """
     if not torch.cuda.is_available():
-        raise RuntimeError(
-            "\n❌ CUDA GPU not detected.\n"
-            "This application requires an NVIDIA GPU.\n"
-            "CPU execution is not supported.\n"
-            "\n👉 Install CUDA-enabled PyTorch:\n"
-            "pip install torch --index-url https://download.pytorch.org/whl/cu121\n"
-        )
+        raise RuntimeError("\n❌ CUDA GPU not detected.\nHF models require GPU.\n")
 
 
 def load_model(
@@ -27,55 +17,51 @@ def load_model(
     device_map: str = "auto",
     dtype: torch.dtype = torch.float16,
 ):
-    """
-    Load base model and optionally apply LoRA adapter.
 
-    Args:
-        base_model (str | None): HuggingFace model name or local path
-        lora_path (str | None): Path to LoRA adapter folder
-        device_map (str): Device mapping ("auto", "cpu", etc.)
-        dtype (torch.dtype): Torch dtype
-
-    Returns:
-        model, tokenizer
-    """
-
-    # -----------------------------
-    # 🔥 CUDA CHECK
-    # -----------------------------
-    _check_cuda()
-
-    # -----------------------------
-    # USE DEFAULT CONFIG (if not provided)
-    # -----------------------------
     if base_model is None:
         base_model = get_model()
 
     if lora_path is None:
         lora_path = get_lora()
 
-    # -----------------------------
-    # VALIDATE INPUTS
-    # -----------------------------
     if not base_model:
-        raise ValueError("Base model path/name must be provided")
+        raise ValueError("Base model required")
 
-    if lora_path:
-        lora_path = os.path.expanduser(lora_path)
+    base_model = os.path.expanduser(base_model)
 
-        if not os.path.exists(lora_path):
-            raise FileNotFoundError(f"LoRA path not found: {lora_path}")
+    # =========================================================
+    # GGUF MODE
+    # =========================================================
+    if base_model.endswith(".gguf"):
+        print(f"[MODEL] Using GGUF model: {base_model}")
 
-        expected = os.path.join(lora_path, "adapter_config.json")
-        if not os.path.exists(expected):
-            raise ValueError(
-                f"Invalid LoRA adapter folder (missing adapter_config.json): {lora_path}"
-            )
+        if not os.path.exists(base_model):
+            raise FileNotFoundError(f"{base_model} not found")
 
-    # -----------------------------
-    # LOAD BASE MODEL
-    # -----------------------------
-    print(f"[MODEL] Loading base model: {base_model}")
+        try:
+            from llama_cpp import Llama
+        except ImportError:
+            raise RuntimeError("Install GGUF support:\npip install llama-cpp-python")
+
+        llm = Llama(
+            model_path=base_model,
+            n_ctx=4096,
+            n_threads=os.cpu_count() or 4,
+            verbose=False,  # 🔥 removes spam logs
+        )
+
+        return {
+            "type": "gguf",
+            "llm": llm,
+            "path": base_model,
+        }, None
+
+    # =========================================================
+    # HF MODE
+    # =========================================================
+    _check_cuda()
+
+    print(f"[MODEL] Loading HF model: {base_model}")
 
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
@@ -90,11 +76,13 @@ def load_model(
         use_fast=True,
     )
 
-    # -----------------------------
-    # APPLY LORA (OPTIONAL)
-    # -----------------------------
     if lora_path:
-        print(f"[MODEL] Applying LoRA adapter: {lora_path}")
+        lora_path = os.path.expanduser(lora_path)
+
+        if not os.path.exists(lora_path):
+            raise FileNotFoundError(f"LoRA not found: {lora_path}")
+
+        print(f"[MODEL] Applying LoRA: {lora_path}")
 
         model = PeftModel.from_pretrained(
             model,
@@ -102,11 +90,6 @@ def load_model(
             local_files_only=True,
         )
 
-        print("[MODEL] LoRA successfully loaded")
-
-    # -----------------------------
-    # FINAL SETUP
-    # -----------------------------
     model.eval()
 
     return model, tokenizer
