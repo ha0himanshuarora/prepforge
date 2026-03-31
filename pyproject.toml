@@ -1,9 +1,9 @@
 [project]
 name = "prepforge"
-version = "0.2.0"
+version = "0.2.1"
 description = "AI Exam Preparation System with TUI, GUI, and Streamlit"
 authors = [
-    { name = "Himanshu Arora" }
+    { name = "Himanshu Arora", email = "ha0himanshuarora@gmail.com" }
 ]
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
